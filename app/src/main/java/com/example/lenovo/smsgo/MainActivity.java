@@ -80,16 +80,18 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             int i = 0;
                             for (ModelSms model: modelSMS){
-                                Thread.sleep(1000);
                                 sendSMS(model.getNumber(),model.getMessage());
                                 modelSmses.get(i).setMessage_sent(true);
                                 UpdateMessageSent(model);
                                 i++;
                                 mProgressBar.setProgress(i);
                                 mTxtUsers.setText(String.valueOf(i)+"/"+mAll);
+                                Thread.sleep(5000);
                             }
                         } catch (InterruptedException e) {
                             e.printStackTrace();
+                        } catch (Exception e){
+                            Log.d("ok",e.getMessage());
                         }
                     }
                 }).run();
@@ -135,14 +137,18 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void UpdateMessageSent(final ModelSms mSms){
+    public void UpdateMessageSent(ModelSms mSms){
         mApiService.setEmail(mSms.getEmail()).enqueue(new Callback<ModelSms>() {
             @Override
             public void onResponse(Call<ModelSms> call, Response<ModelSms> response) {
                 if (response.isSuccessful()){
                     if (response.body().getMessage_sent()) {
-                        mAdapterListUsers.setLsModelSms(modelSMS);
-                        mAdapterListUsers.notifyDataSetChanged();
+                        try {
+                            mAdapterListUsers.setLsModelSms(modelSMS);
+                            mAdapterListUsers.notifyDataSetChanged();
+                        }catch (Exception e){
+                            e.getMessage();
+                        }
                     }
                 }
             }
@@ -173,15 +179,22 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<List<ModelSms>> call, Response<List<ModelSms>> response) {
                 if (response.isSuccessful()){
-                    modelSmses =  response.body();
-                    modelSMS = response.body();
-                    mAdapterListUsers = new AdapterListUsers(MainActivity.this,modelSmses);
-                    mUsersRecyclerView.setAdapter(mAdapterListUsers);
-                    mProgressCircle.setVisibility(View.GONE);
-                    mAll = String.valueOf(modelSMS.size());
-                    mTxtUsers.setText("0/"+mAll);
-                    mProgressBar.setMax(modelSMS.size());
-                    mProgressBar.setProgress(0);
+                    try {
+
+                        modelSmses =  response.body();
+                        modelSMS = response.body();
+                        mAdapterListUsers = new AdapterListUsers(MainActivity.this,modelSmses);
+                        mUsersRecyclerView.setAdapter(mAdapterListUsers);
+                        mProgressCircle.setVisibility(View.GONE);
+                        mAll = String.valueOf(modelSMS.size());
+                        mTxtUsers.setText("0/"+mAll);
+                        mProgressBar.setMax(modelSMS.size());
+                        mProgressBar.setProgress(0);
+
+                    }catch (Exception e){
+                        e.getMessage();
+                    }
+
 
                     /*Txtresult.setText(modelSmses.toString());*/
                     /*for (ModelSms modelSm :modelSmses){
